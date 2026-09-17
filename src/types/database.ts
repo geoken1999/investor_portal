@@ -106,6 +106,24 @@ export type Document = {
   created_at: string;
 };
 
+export type ShopifySettings = {
+  id: string;
+  shop_domain: string;
+  client_id: string | null;
+  client_secret: string | null;
+  // Cached short-lived (24h) access token from the client_credentials
+  // grant — reused until close to expiry rather than re-requested on
+  // every API call. See src/lib/shopify/settings.ts.
+  cached_access_token: string | null;
+  cached_token_expires_at: string | null;
+  tracked_product_id: string | null;
+  tracked_product_title: string | null;
+  report_enabled: boolean;
+  connected_by: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -154,6 +172,12 @@ export type Database = {
           storage_path: string;
         };
         Update: Partial<Document>;
+        Relationships: [];
+      };
+      shopify_settings: {
+        Row: ShopifySettings;
+        Insert: Partial<ShopifySettings> & { shop_domain: string };
+        Update: Partial<ShopifySettings>;
         Relationships: [];
       };
     };

@@ -18,6 +18,13 @@ const STATUS_STYLES: Record<string, Variant> = {
   processing: "secondary",
   paid: "default",
   failed: "destructive",
+  // shopify fulfillment status (OrderDisplayFulfillmentStatus, lowercased)
+  fulfilled: "default",
+  unfulfilled: "destructive",
+  partially_fulfilled: "secondary",
+  in_progress: "secondary",
+  on_hold: "secondary",
+  restocked: "destructive",
 };
 
 const STATUS_LABELS: Record<string, string> = {
@@ -26,7 +33,13 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 function label(status: string) {
-  return STATUS_LABELS[status] ?? status.charAt(0).toUpperCase() + status.slice(1);
+  if (STATUS_LABELS[status]) return STATUS_LABELS[status];
+  // Generic fallback for SCREAMING_SNAKE_CASE / snake_case values (e.g.
+  // Shopify's fulfillment status enum) — "partially_fulfilled" -> "Partially fulfilled".
+  return status
+    .split("_")
+    .map((word, i) => (i === 0 ? word.charAt(0).toUpperCase() + word.slice(1) : word))
+    .join(" ");
 }
 
 export function StatusBadge({ status }: { status: string }) {

@@ -14,11 +14,20 @@ export default async function InvestorDocumentsPage() {
     .order("created_at", { ascending: false });
 
   return (
-    <InvestorDocumentsTable
-      heading="Documents"
-      description="Agreements, statements, and reports shared with you."
-      documents={documents ?? []}
-      emptyMessage="No documents have been shared with you yet."
-    />
+    <div className="flex flex-col gap-6">
+      <div>
+        <h1 className="font-heading text-2xl font-semibold tracking-tight">
+          Documents
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          Agreements, statements, and reports shared with you.
+        </p>
+      </div>
+      <InvestorDocumentsTable
+        heading="Documents"
+        documents={documents ?? []}
+        emptyMessage="No documents have been shared with you yet."
+      />
+    </div>
   );
 }

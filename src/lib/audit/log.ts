@@ -20,7 +20,11 @@ export type AuditAction =
   | "payout_marked_paid"
   | "document_uploaded"
   | "document_downloaded"
-  | "document_deleted";
+  | "document_deleted"
+  | "shopify_connected"
+  | "shopify_disconnected"
+  | "shopify_product_selected"
+  | "shopify_report_toggled";
 
 interface LogAuditEventInput {
   userId: string | null;

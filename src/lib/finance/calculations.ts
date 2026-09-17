@@ -122,7 +122,11 @@ export function formatCurrency(
   currency = "INR",
 ): string {
   const num = value instanceof Decimal ? value.toNumber() : Number(value);
-  return new Intl.NumberFormat("en-IN", {
+  // en-IN groups digits in lakhs/crores, which only reads correctly for
+  // INR amounts — anything else (e.g. Shopify sales in another currency)
+  // uses a neutral locale so digit grouping matches the currency shown.
+  const locale = currency === "INR" ? "en-IN" : "en-US";
+  return new Intl.NumberFormat(locale, {
     style: "currency",
     currency,
     maximumFractionDigits: 2,
