@@ -15,6 +15,8 @@ export interface ActionState {
   error?: string;
   fieldErrors?: Record<string, string[]>;
   success?: boolean;
+  /** Set only by addInvestor — the one-time temporary password to hand the investor. */
+  generatedPassword?: string;
 }
 
 const GENERIC_LOGIN_ERROR = "Invalid email or password.";

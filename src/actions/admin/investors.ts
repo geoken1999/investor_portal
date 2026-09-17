@@ -7,16 +7,17 @@ import { requireAdmin } from "@/lib/auth/guards";
 import { logAuditEvent } from "@/lib/audit/log";
 import { addInvestorSchema } from "@/lib/validations/auth";
 import { updateInvestorSchema } from "@/lib/validations/investors";
+import { generateTemporaryPassword } from "@/lib/auth/generate-password";
 import type { ActionState } from "@/actions/auth";
 
 /**
- * Invites the investor by email rather than setting a password directly —
- * no password is ever generated, displayed, or transmitted by this app.
- * Supabase sends its own invite email (built-in template, no extra service
- * needed) with a link to /auth/callback?next=/activate, where the investor
- * sets their own password. The handle_new_user trigger defaults their
- * profile status to 'invited'; activateAccount (actions/auth.ts) flips it
- * to 'active' once they complete that flow.
+ * Creates the investor's account directly with a generated temporary
+ * password, rather than emailing an invite link — Supabase's invite email
+ * proved unreliable to depend on (default shared email service is
+ * rate-limited, and custom SMTP wasn't reliably in place either). The admin
+ * hands the password to the investor out-of-band, and the investor changes
+ * it from their Profile page (see changePassword in actions/auth.ts). The
+ * account is created pre-confirmed and active, so they can log in immediately.
  */
 export async function addInvestor(
   _prevState: ActionState,
@@ -35,30 +36,42 @@ export async function addInvestor(
     return { fieldErrors: parsed.error.flatten().fieldErrors };
   }
 
+  const temporaryPassword = generateTemporaryPassword();
   const adminClient = createAdminClient();
-  const { data, error } = await adminClient.auth.admin.inviteUserByEmail(
-    parsed.data.email,
-    {
-      data: { full_name: parsed.data.fullName },
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?next=/activate`,
-    },
-  );
+  const { data, error } = await adminClient.auth.admin.createUser({
+    email: parsed.data.email,
+    password: temporaryPassword,
+    email_confirm: true,
+    user_metadata: { full_name: parsed.data.fullName },
+  });
 
   if (error) {
     return { error: error.message };
   }
 
   const supabase = await createClient();
+
+  // The handle_new_user trigger defaults status to 'invited' — this flow
+  // has no separate activation step, so mark it active immediately.
+  const { error: profileError } = await supabase
+    .from("profiles")
+    .update({ status: "active" })
+    .eq("id", data.user.id);
+
+  if (profileError) {
+    return { error: profileError.message };
+  }
+
   await logAuditEvent(supabase, {
     userId: admin.id,
-    action: "investor_invited",
+    action: "investor_created",
     entity: "profiles",
-    entityId: data.user?.id,
+    entityId: data.user.id,
     metadata: { email: parsed.data.email, fullName: parsed.data.fullName },
   });
 
   revalidatePath("/admin/investors");
-  return { success: true };
+  return { success: true, generatedPassword: temporaryPassword };
 }
 
 export async function updateInvestor(

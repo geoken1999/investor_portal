@@ -5,7 +5,7 @@ import type { Database } from "@/types/database";
 export type AuditAction =
   | "login"
   | "logout"
-  | "investor_invited"
+  | "investor_created"
   | "investor_activated"
   | "investor_updated"
   | "investor_deleted"

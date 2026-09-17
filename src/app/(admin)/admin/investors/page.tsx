@@ -46,8 +46,8 @@ export default async function AdminInvestorsPage() {
         <CardHeader>
           <CardTitle>Add an investor</CardTitle>
           <CardDescription>
-            They&apos;ll receive an email with a link to set their own password —
-            no password ever passes through you or this app.
+            Creates their account with a temporary password to share with them
+            directly — they can change it from their Profile page.
           </CardDescription>
         </CardHeader>
         <CardContent>
