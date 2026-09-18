@@ -56,7 +56,7 @@ export function ShopifyProductPicker({
       </div>
       <input type="hidden" name="productId" value={selected?.id ?? ""} />
       <input type="hidden" name="productTitle" value={selected?.title ?? ""} />
-      <Button type="submit" disabled={isPending || !selected}>
+      <Button type="submit" loading={isPending} disabled={!selected}>
         {isPending ? "Saving…" : "Save tracked product"}
       </Button>
       {state.error && <p className="text-sm text-destructive">{state.error}</p>}

@@ -55,7 +55,7 @@ export function DeleteConfirmDialog({
             ))}
             <AlertDialogAction
               render={
-                <Button type="submit" variant="destructive" disabled={isPending}>
+                <Button type="submit" variant="destructive" loading={isPending}>
                   {isPending ? "Deleting…" : "Delete"}
                 </Button>
               }

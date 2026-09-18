@@ -79,7 +79,7 @@ export function AddInvestorForm() {
           <FormFieldError messages={state.fieldErrors?.email} />
         </div>
 
-        <Button type="submit" disabled={isPending}>
+        <Button type="submit" loading={isPending}>
           {isPending ? "Adding…" : "Add investor"}
         </Button>
       </form>

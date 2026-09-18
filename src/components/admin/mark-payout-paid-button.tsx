@@ -19,8 +19,8 @@ export function MarkPayoutPaidButton({ payout }: { payout: Payout }) {
       <input type="hidden" name="payoutDate" value={payout.payout_date} />
       <input type="hidden" name="referenceNumber" value={payout.reference_number ?? ""} />
       <input type="hidden" name="status" value="paid" />
-      <Button type="submit" variant="outline" size="sm" disabled={isPending}>
-        <CheckCircle2 />
+      <Button type="submit" variant="outline" size="sm" loading={isPending}>
+        {!isPending && <CheckCircle2 />}
         {isPending ? "Marking…" : "Mark paid"}
       </Button>
     </form>

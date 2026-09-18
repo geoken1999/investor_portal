@@ -51,7 +51,7 @@ export function LoginForm() {
 
       {state.error && <p className="text-sm text-destructive">{state.error}</p>}
 
-      <Button type="submit" disabled={isPending} className="mt-2 w-full">
+      <Button type="submit" loading={isPending} className="mt-2 w-full">
         {isPending ? "Signing in…" : "Sign in"}
       </Button>
     </form>

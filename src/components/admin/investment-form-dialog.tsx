@@ -231,7 +231,7 @@ export function InvestmentFormDialog({
           )}
 
           <DialogFooter className="-mx-0 -mb-0 mt-2 border-t-0 bg-transparent p-0">
-            <Button type="submit" disabled={isPending}>
+            <Button type="submit" loading={isPending}>
               {isPending ? "Saving…" : isEdit ? "Save changes" : "Create investment"}
             </Button>
           </DialogFooter>

@@ -24,10 +24,12 @@ export function DownloadDocumentButton({ documentId }: { documentId: string }) {
     });
   }
 
+  const preparing = isPending && clicked;
+
   return (
-    <Button variant="outline" size="sm" onClick={handleClick} disabled={isPending}>
-      <Download />
-      {isPending && clicked ? "Preparing…" : "Download"}
+    <Button variant="outline" size="sm" onClick={handleClick} loading={preparing}>
+      {!preparing && <Download />}
+      {preparing ? "Preparing…" : "Download"}
     </Button>
   );
 }

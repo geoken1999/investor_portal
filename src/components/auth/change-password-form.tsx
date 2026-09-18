@@ -58,7 +58,7 @@ export function ChangePasswordForm() {
 
       {state.error && <p className="text-sm text-destructive">{state.error}</p>}
 
-      <Button type="submit" disabled={isPending} className="w-fit">
+      <Button type="submit" loading={isPending} className="w-fit">
         {isPending ? "Updating…" : "Update password"}
       </Button>
     </form>

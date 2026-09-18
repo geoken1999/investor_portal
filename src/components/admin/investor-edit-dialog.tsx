@@ -91,7 +91,7 @@ export function InvestorEditDialog({ investor }: { investor: Profile }) {
           {state.error && <p className="text-sm text-destructive">{state.error}</p>}
 
           <DialogFooter className="-mx-0 -mb-0 mt-2 border-t-0 bg-transparent p-0">
-            <Button type="submit" disabled={isPending}>
+            <Button type="submit" loading={isPending}>
               {isPending ? "Saving…" : "Save changes"}
             </Button>
           </DialogFooter>
