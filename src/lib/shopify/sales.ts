@@ -1,5 +1,6 @@
 import "server-only";
 import { shopifyGraphQL } from "@/lib/shopify/client";
+import { deliveryStatusOf } from "@/lib/shopify/delivery-status";
 import { paymentTypeOf, type PaymentType } from "@/lib/shopify/payment-type";
 
 export interface ProductSaleLine {
@@ -11,6 +12,7 @@ export interface ProductSaleLine {
   currencyCode: string;
   fulfillmentStatus: string;
   paymentType: PaymentType;
+  deliveryStatus: string;
 }
 
 interface OrdersPage {
@@ -22,6 +24,7 @@ interface OrdersPage {
         createdAt: string;
         cancelledAt: string | null;
         paymentGatewayNames: string[];
+        fulfillments: { displayStatus: string | null }[];
         displayFulfillmentStatus: string;
         lineItems: {
           edges: {
@@ -48,6 +51,7 @@ const ORDERS_QUERY = `
           createdAt
           cancelledAt
           paymentGatewayNames
+          fulfillments(first: 10) { displayStatus }
           displayFulfillmentStatus
           lineItems(first: 50) {
             edges {
@@ -124,6 +128,7 @@ export async function fetchProductSales(
           currencyCode: item.discountedTotalSet.shopMoney.currencyCode,
           fulfillmentStatus: order.displayFulfillmentStatus,
           paymentType: paymentTypeOf(order.paymentGatewayNames ?? []),
+          deliveryStatus: deliveryStatusOf(order.fulfillments ?? []),
         });
       }
     }

@@ -39,6 +39,7 @@ export function ShopifySalesTable({
           <TableHead>Selling price</TableHead>
           <TableHead>Payment</TableHead>
           <TableHead>Fulfillment status</TableHead>
+          <TableHead>Delivery status</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -54,6 +55,9 @@ export function ShopifySalesTable({
             <TableCell>
               <StatusBadge status={line.fulfillmentStatus.toLowerCase()} />
             </TableCell>
+            <TableCell>
+              <StatusBadge status={line.deliveryStatus} />
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>
@@ -65,7 +69,7 @@ export function ShopifySalesTable({
           <TableCell className="font-semibold">
             Total: {formatCurrency(total, currencyCode)}
           </TableCell>
-          <TableCell colSpan={2} />
+          <TableCell colSpan={3} />
         </TableRow>
       </TableFooter>
     </Table>

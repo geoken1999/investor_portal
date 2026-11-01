@@ -25,6 +25,21 @@ const STATUS_STYLES: Record<string, Variant> = {
   in_progress: "secondary",
   on_hold: "secondary",
   restocked: "destructive",
+  // shopify delivery status (Fulfillment.displayStatus, lowercased)
+  delivered: "default",
+  picked_up: "default",
+  partially_delivered: "secondary",
+  in_transit: "secondary",
+  out_for_delivery: "secondary",
+  confirmed: "secondary",
+  label_printed: "secondary",
+  label_purchased: "secondary",
+  ready_for_pickup: "secondary",
+  not_shipped: "outline",
+  delayed: "destructive",
+  attempted_delivery: "destructive",
+  not_delivered: "destructive",
+  failure: "destructive",
 };
 
 const STATUS_LABELS: Record<string, string> = {
