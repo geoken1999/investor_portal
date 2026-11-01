@@ -18,6 +18,7 @@ interface OrdersPage {
       node: {
         name: string;
         createdAt: string;
+        cancelledAt: string | null;
         displayFulfillmentStatus: string;
         lineItems: {
           edges: {
@@ -42,6 +43,7 @@ const ORDERS_QUERY = `
         node {
           name
           createdAt
+          cancelledAt
           displayFulfillmentStatus
           lineItems(first: 50) {
             edges {
@@ -71,6 +73,8 @@ const MAX_ORDERS_SCANNED = 500;
  * here). Orders are scanned newest-first specifically so that if the scan
  * cap below is hit on a high-volume store, it's the oldest orders in range
  * that get dropped, not the most recent ones.
+ *
+ * Cancelled orders (those with a cancelledAt time) are left out.
  *
  * Fulfillment status is the order-level `displayFulfillmentStatus` —
  * Shopify's GraphQL schema doesn't expose a clean per-line-item status the
@@ -103,6 +107,8 @@ export async function fetchProductSales(
 
     for (const { node: order } of data.orders.edges) {
       scanned += 1;
+      // A cancelled order is not a sale, so it never appears in the report.
+      if (order.cancelledAt) continue;
       for (const { node: item } of order.lineItems.edges) {
         if (item.product?.id !== productId) continue;
         lines.push({
