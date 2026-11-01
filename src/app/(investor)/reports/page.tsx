@@ -8,12 +8,13 @@ import {
 } from "@/components/ui/card";
 import { InvestorDocumentsTable } from "@/components/investor/investor-documents-table";
 import { ShopifyDateFilter } from "@/components/investor/shopify-date-filter";
-import { ShopifySalesTable } from "@/components/shared/shopify-sales-table";
+import { ShopifySalesCounts } from "@/components/investor/shopify-sales-counts";
 import { requireInvestor } from "@/lib/auth/guards";
 import { createClient } from "@/lib/supabase/server";
 import { REPORT_CATEGORIES } from "@/lib/validations/documents";
 import { getShopifySettings, getValidAccessToken } from "@/lib/shopify/settings";
 import { fetchProductSales } from "@/lib/shopify/sales";
+import { summarizeSales } from "@/lib/shopify/sales-summary";
 
 export const metadata: Metadata = { title: "Reports" };
 
@@ -71,7 +72,7 @@ export default async function InvestorReportsPage({
           <CardHeader>
             <CardTitle>{shopify!.tracked_product_title} — Sales</CardTitle>
             <CardDescription>
-              Order date, quantity, selling price, and fulfillment status — showing full
+              How many orders were placed and how many have been fulfilled — showing full
               history by default, narrow it down with the date filter below.
             </CardDescription>
           </CardHeader>
@@ -80,10 +81,7 @@ export default async function InvestorReportsPage({
             {salesError ? (
               <p className="text-sm text-destructive">{salesError}</p>
             ) : (
-              <ShopifySalesTable
-                lines={salesLines}
-                emptyMessage="No sales in this date range."
-              />
+              <ShopifySalesCounts counts={summarizeSales(salesLines)} />
             )}
           </CardContent>
         </Card>
