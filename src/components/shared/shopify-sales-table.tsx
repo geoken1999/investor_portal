@@ -8,6 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { formatCurrency } from "@/lib/finance/calculations";
 import type { ProductSaleLine } from "@/lib/shopify/sales";
@@ -36,6 +37,7 @@ export function ShopifySalesTable({
           <TableHead>Date</TableHead>
           <TableHead>Qty</TableHead>
           <TableHead>Selling price</TableHead>
+          <TableHead>Payment</TableHead>
           <TableHead>Fulfillment status</TableHead>
         </TableRow>
       </TableHeader>
@@ -46,6 +48,9 @@ export function ShopifySalesTable({
             <TableCell>{line.date}</TableCell>
             <TableCell>{line.quantity}</TableCell>
             <TableCell>{formatCurrency(line.lineTotal, line.currencyCode)}</TableCell>
+            <TableCell>
+              <Badge variant={line.paymentType === "COD" ? "outline" : "secondary"}>{line.paymentType}</Badge>
+            </TableCell>
             <TableCell>
               <StatusBadge status={line.fulfillmentStatus.toLowerCase()} />
             </TableCell>
@@ -60,7 +65,7 @@ export function ShopifySalesTable({
           <TableCell className="font-semibold">
             Total: {formatCurrency(total, currencyCode)}
           </TableCell>
-          <TableCell />
+          <TableCell colSpan={2} />
         </TableRow>
       </TableFooter>
     </Table>
