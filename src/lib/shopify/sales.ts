@@ -1,5 +1,6 @@
 import "server-only";
 import { shopifyGraphQL } from "@/lib/shopify/client";
+import { createdAtQuery } from "@/lib/shopify/date-range";
 import { deliveryStatusOf } from "@/lib/shopify/delivery-status";
 import { paymentTypeOf, type PaymentType } from "@/lib/shopify/payment-type";
 
@@ -69,7 +70,7 @@ const ORDERS_QUERY = `
   }
 `;
 
-const MAX_ORDERS_SCANNED = 500;
+const MAX_ORDERS_SCANNED = 3000;
 
 /**
  * Sales lines for one tracked product, optionally bounded by date. Shopify's
@@ -97,10 +98,7 @@ export async function fetchProductSales(
   from?: string,
   to?: string,
 ): Promise<ProductSaleLine[]> {
-  const clauses: string[] = [];
-  if (from) clauses.push(`created_at:>=${from}`);
-  if (to) clauses.push(`created_at:<=${to}`);
-  const searchQuery = clauses.join(" ");
+  const searchQuery = createdAtQuery(from, to);
   const lines: ProductSaleLine[] = [];
   let cursor: string | null = null;
   let scanned = 0;
