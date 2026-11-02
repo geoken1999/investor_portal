@@ -117,6 +117,59 @@ export function buildPortfolioTimeline(
   return points;
 }
 
+const PERIODS_PER_YEAR: Record<Exclude<Investment["payment_frequency"], "at_maturity">, number> = {
+  monthly: 12,
+  quarterly: 4,
+  semi_annual: 2,
+  annual: 1,
+};
+
+export interface PayoutCalculation {
+  /** One payment at the investment's frequency; for at-maturity, the whole return up to maturity (or null if no maturity date). */
+  perPeriod: Decimal | null;
+  /** A year of return at the stated rate. */
+  annualReturn: Decimal;
+  /** Return earned (simple interest, 365-day year) from the last payout that counts, or the start date, up to `asOf`. */
+  accrued: Decimal;
+  /** The date accrual runs from. */
+  accruedFrom: string;
+  /** Sum of paid payouts so far. */
+  paidSoFar: Decimal;
+}
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+const daysBetween = (from: string, to: string): number =>
+  Math.max(0, Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / DAY_MS));
+
+/**
+ * What an investment owes its investor: the regular payment for its frequency, plus the return accrued since the
+ * last payout that was paid or is still on its way (a cancelled or failed payout does not reset the clock).
+ * `return_rate` is a yearly percentage and the return is simple (not compounded), matching how payouts are recorded.
+ */
+export function calculatePayoutDue(
+  investment: Pick<Investment, "principal_amount" | "return_rate" | "payment_frequency" | "start_date" | "maturity_date">,
+  payouts: Pick<Payout, "amount" | "status" | "payout_date">[],
+  asOf: string,
+): PayoutCalculation {
+  const principal = new Decimal(investment.principal_amount);
+  const annualReturn = principal.mul(new Decimal(investment.return_rate)).div(100);
+
+  let perPeriod: Decimal | null;
+  if (investment.payment_frequency === "at_maturity") {
+    perPeriod = investment.maturity_date
+      ? annualReturn.mul(daysBetween(investment.start_date, investment.maturity_date)).div(365)
+      : null;
+  } else {
+    perPeriod = annualReturn.div(PERIODS_PER_YEAR[investment.payment_frequency]);
+  }
+
+  const counted = payouts.filter((p) => p.status !== "cancelled" && p.status !== "failed").map((p) => p.payout_date);
+  const accruedFrom = counted.reduce((latest, d) => (d > latest ? d : latest), investment.start_date);
+  const accrued = annualReturn.mul(daysBetween(accruedFrom, asOf)).div(365);
+
+  return { perPeriod, annualReturn, accrued, accruedFrom, paidSoFar: calculateTotalPayoutsReceived(payouts) };
+}
+
 export function formatCurrency(
   value: Decimal | string | number,
   currency = "INR",

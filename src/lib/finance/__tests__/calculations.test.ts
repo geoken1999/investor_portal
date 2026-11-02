@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildPortfolioTimeline,
   calculateCurrentValue,
+  calculatePayoutDue,
   calculateTotalPayoutsReceived,
   groupPayoutsByInvestment,
   nextPayout,
@@ -152,5 +153,41 @@ describe("buildPortfolioTimeline", () => {
     expect(points[0].value).toBe(10000);
     // Current month: principal + the paid payout, scheduled one excluded.
     expect(points[1].value).toBe(10500);
+  });
+});
+
+describe("calculatePayoutDue", () => {
+  const base = { principal_amount: "100000", return_rate: "12", payment_frequency: "quarterly" as const, start_date: "2026-01-01", maturity_date: null };
+
+  it("splits a year of return across the payment frequency", () => {
+    const r = calculatePayoutDue(base, [], "2026-04-01");
+    expect(r.annualReturn.toFixed(2)).toBe("12000.00");
+    expect(r.perPeriod?.toFixed(2)).toBe("3000.00");
+    expect(calculatePayoutDue({ ...base, payment_frequency: "monthly" }, [], "2026-02-01").perPeriod?.toFixed(2)).toBe("1000.00");
+  });
+
+  it("accrues simple interest from the start date until a payout exists", () => {
+    const r = calculatePayoutDue(base, [], "2026-04-01");
+    expect(r.accruedFrom).toBe("2026-01-01");
+    expect(r.accrued.toFixed(2)).toBe("2958.90"); // 90 days of 12,000 / 365
+  });
+
+  it("accrues from the latest payout that still counts, ignoring cancelled and failed ones", () => {
+    const r = calculatePayoutDue(
+      base,
+      [
+        { amount: "3000", status: "paid", payout_date: "2026-04-01" },
+        { amount: "3000", status: "cancelled", payout_date: "2026-07-01" },
+      ],
+      "2026-05-01",
+    );
+    expect(r.accruedFrom).toBe("2026-04-01");
+    expect(r.paidSoFar.toFixed(2)).toBe("3000.00");
+  });
+
+  it("pays the whole term's return at maturity, or nothing to suggest without a maturity date", () => {
+    const at = { ...base, payment_frequency: "at_maturity" as const };
+    expect(calculatePayoutDue(at, [], "2026-01-01").perPeriod).toBeNull();
+    expect(calculatePayoutDue({ ...at, maturity_date: "2027-01-01" }, [], "2026-01-01").perPeriod?.toFixed(2)).toBe("12000.00");
   });
 });

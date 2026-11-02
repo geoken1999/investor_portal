@@ -15,6 +15,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { StatusBadge } from "@/components/shared/status-badge";
+import { PayoutCalculator } from "@/components/admin/payout-calculator";
 import { PayoutFormDialog } from "@/components/admin/payout-form-dialog";
 import { MarkPayoutPaidButton } from "@/components/admin/mark-payout-paid-button";
 import { createClient } from "@/lib/supabase/server";
@@ -63,6 +64,20 @@ export default async function AdminPayoutsPage() {
         </div>
         <PayoutFormDialog investmentOptions={investmentOptions} />
       </div>
+
+      <PayoutCalculator
+        investments={investments.map((inv) => ({
+          id: inv.id,
+          principal_amount: inv.principal_amount,
+          return_rate: inv.return_rate,
+          payment_frequency: inv.payment_frequency,
+          start_date: inv.start_date,
+          maturity_date: inv.maturity_date,
+          label: investmentOptions.find((o) => o.id === inv.id)?.label ?? inv.investment_type,
+        }))}
+        payouts={rows.map((p) => ({ investment_id: p.investment_id, amount: p.amount, status: p.status, payout_date: p.payout_date }))}
+        investmentOptions={investmentOptions}
+      />
 
       <Card>
         <CardHeader>

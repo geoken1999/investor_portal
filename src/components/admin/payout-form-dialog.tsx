@@ -39,10 +39,13 @@ export function PayoutFormDialog({
   investmentOptions,
   payout,
   trigger,
+  defaults,
 }: {
   investmentOptions: { id: string; label: string }[];
   payout?: Payout;
   trigger?: React.ReactElement;
+  /** Starting values for a new payout, e.g. from the payout calculator. */
+  defaults?: { investmentId?: string; amount?: string; payoutDate?: string };
 }) {
   const isEdit = !!payout;
   const action = isEdit ? updatePayout : createPayout;
@@ -91,7 +94,7 @@ export function PayoutFormDialog({
             <Select
               name="investmentId"
               items={investmentItems}
-              defaultValue={payout?.investment_id}
+              defaultValue={payout?.investment_id ?? defaults?.investmentId}
               required
             >
               <SelectTrigger id="investmentId" className="w-full">
@@ -115,7 +118,7 @@ export function PayoutFormDialog({
                 id="amount"
                 name="amount"
                 inputMode="decimal"
-                defaultValue={payout?.amount}
+                defaultValue={payout?.amount ?? defaults?.amount}
                 required
               />
               <FormFieldError messages={state.fieldErrors?.amount} />
@@ -126,7 +129,7 @@ export function PayoutFormDialog({
                 id="payoutDate"
                 name="payoutDate"
                 type="date"
-                defaultValue={payout?.payout_date}
+                defaultValue={payout?.payout_date ?? defaults?.payoutDate}
                 required
               />
               <FormFieldError messages={state.fieldErrors?.payoutDate} />
