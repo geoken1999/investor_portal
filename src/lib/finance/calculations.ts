@@ -117,6 +117,29 @@ export function buildPortfolioTimeline(
   return points;
 }
 
+export interface QuickReturn {
+  yearly: Decimal;
+  halfYearly: Decimal;
+  quarterly: Decimal;
+  monthly: Decimal;
+  daily: Decimal;
+  /** The amount plus one year of return. */
+  valueAfterYear: Decimal;
+}
+
+/** Return on any amount at a yearly rate, simple (not compounded). Used by the admin's free-form calculator. */
+export function calculateQuickReturn(amount: string, yearlyRatePercent: string): QuickReturn {
+  const yearly = new Decimal(amount).mul(new Decimal(yearlyRatePercent)).div(100);
+  return {
+    yearly,
+    halfYearly: yearly.div(2),
+    quarterly: yearly.div(4),
+    monthly: yearly.div(12),
+    daily: yearly.div(365),
+    valueAfterYear: new Decimal(amount).add(yearly),
+  };
+}
+
 const PERIODS_PER_YEAR: Record<Exclude<Investment["payment_frequency"], "at_maturity">, number> = {
   monthly: 12,
   quarterly: 4,

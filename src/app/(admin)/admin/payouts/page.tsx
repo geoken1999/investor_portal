@@ -15,6 +15,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { StatusBadge } from "@/components/shared/status-badge";
+import { QuickPayoutCalculator } from "@/components/admin/quick-payout-calculator";
 import { PayoutCalculator } from "@/components/admin/payout-calculator";
 import { PayoutFormDialog } from "@/components/admin/payout-form-dialog";
 import { MarkPayoutPaidButton } from "@/components/admin/mark-payout-paid-button";
@@ -64,6 +65,8 @@ export default async function AdminPayoutsPage() {
         </div>
         <PayoutFormDialog investmentOptions={investmentOptions} />
       </div>
+
+      <QuickPayoutCalculator />
 
       <PayoutCalculator
         investments={investments.map((inv) => ({

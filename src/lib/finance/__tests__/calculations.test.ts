@@ -3,6 +3,7 @@ import {
   buildPortfolioTimeline,
   calculateCurrentValue,
   calculatePayoutDue,
+  calculateQuickReturn,
   calculateTotalPayoutsReceived,
   groupPayoutsByInvestment,
   nextPayout,
@@ -189,5 +190,17 @@ describe("calculatePayoutDue", () => {
     const at = { ...base, payment_frequency: "at_maturity" as const };
     expect(calculatePayoutDue(at, [], "2026-01-01").perPeriod).toBeNull();
     expect(calculatePayoutDue({ ...at, maturity_date: "2027-01-01" }, [], "2026-01-01").perPeriod?.toFixed(2)).toBe("12000.00");
+  });
+});
+
+describe("calculateQuickReturn", () => {
+  it("gives the return at 6.4% for any amount", () => {
+    const r = calculateQuickReturn("100000", "6.4");
+    expect(r.yearly.toFixed(2)).toBe("6400.00");
+    expect(r.halfYearly.toFixed(2)).toBe("3200.00");
+    expect(r.quarterly.toFixed(2)).toBe("1600.00");
+    expect(r.monthly.toFixed(2)).toBe("533.33");
+    expect(r.daily.toFixed(2)).toBe("17.53");
+    expect(r.valueAfterYear.toFixed(2)).toBe("106400.00");
   });
 });
